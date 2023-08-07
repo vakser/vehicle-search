@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/manufacturers")
 public class ManufacturerController {
-    private ManufacturerService manufacturerService;
+    private final ManufacturerService manufacturerService;
 
     public ManufacturerController(ManufacturerService manufacturerService) {
         this.manufacturerService = manufacturerService;
@@ -27,5 +27,11 @@ public class ManufacturerController {
     public ResponseEntity<List<Manufacturer>> getAllManufacturers() {
         List<Manufacturer> savedManufacturers = manufacturerService.fetchAllManufacturers();
         return ResponseEntity.status(HttpStatus.OK).body(savedManufacturers);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Manufacturer> getManufacturerBasedOnId(@PathVariable int id) {
+        Manufacturer dbManufacturer = manufacturerService.getManufacturerForId(id);
+        return ResponseEntity.ok(dbManufacturer);
     }
 }
