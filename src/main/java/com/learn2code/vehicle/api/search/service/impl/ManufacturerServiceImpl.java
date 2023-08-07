@@ -6,10 +6,11 @@ import com.learn2code.vehicle.api.search.service.ManufacturerService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ManufacturerServiceImpl implements ManufacturerService {
-    private ManufacturerDAO manufacturerDAO;
+    private final ManufacturerDAO manufacturerDAO;
 
     public ManufacturerServiceImpl(ManufacturerDAO manufacturerDAO) {
         this.manufacturerDAO = manufacturerDAO;
@@ -23,5 +24,11 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     @Override
     public List<Manufacturer> fetchAllManufacturers() {
         return manufacturerDAO.findAll();
+    }
+
+    @Override
+    public Manufacturer getManufacturerForId(int id) {
+        Optional<Manufacturer> dbManufacturer = manufacturerDAO.findById(id);
+        return dbManufacturer.orElse(null);
     }
 }
