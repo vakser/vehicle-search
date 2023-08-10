@@ -14,4 +14,11 @@ public class ManufacturerExceptions {
         ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingFieldException.class)
+    public ResponseEntity<ErrorResponse> handleMissingFieldsError(MissingFieldException ex) {
+        ErrorResponse err = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    }
 }

@@ -9,4 +9,5 @@ public interface ManufacturerService {
 
     List<Manufacturer> fetchAllManufacturers();
     Manufacturer getManufacturerForId(int id);
+    Manufacturer updateManufacturer(int id, Manufacturer updatedManufacturer);
 }
