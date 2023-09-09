@@ -1,9 +1,12 @@
 package com.learn2code.vehicle.api.search.service.impl;
 
+import com.learn2code.vehicle.api.search.dao.ManufacturerDAO;
 import com.learn2code.vehicle.api.search.dao.ModelDAO;
 import com.learn2code.vehicle.api.search.dao.TrimTypeDAO;
+import com.learn2code.vehicle.api.search.entity.Manufacturer;
 import com.learn2code.vehicle.api.search.entity.Model;
 import com.learn2code.vehicle.api.search.entity.TrimType;
+import com.learn2code.vehicle.api.search.exception.ManufacturerNotFoundException;
 import com.learn2code.vehicle.api.search.exception.ModelNotFoundException;
 import com.learn2code.vehicle.api.search.exception.TrimTypeNotFoundException;
 import com.learn2code.vehicle.api.search.service.ModelTrimService;
@@ -17,18 +20,19 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ModelTrimServiceImpl implements ModelTrimService {
-    private ModelDAO modelDAO;
-    private TrimTypeDAO trimTypeDAO;
+    private final ModelDAO modelDAO;
+    private final TrimTypeDAO trimTypeDAO;
+    private final ManufacturerDAO manufacturerDAO;
 
-    public ModelTrimServiceImpl(ModelDAO modelDAO, TrimTypeDAO trimTypeDAO) {
+    public ModelTrimServiceImpl(ModelDAO modelDAO, TrimTypeDAO trimTypeDAO, ManufacturerDAO manufacturerDAO) {
         this.modelDAO = modelDAO;
         this.trimTypeDAO = trimTypeDAO;
+        this.manufacturerDAO = manufacturerDAO;
     }
 
     @Override
     public Model saveModel(Model model) {
-        Model savedModel = modelDAO.save(model);
-        return savedModel;
+        return modelDAO.save(model);
     }
 
     @Override
@@ -38,8 +42,7 @@ public class ModelTrimServiceImpl implements ModelTrimService {
 
     @Override
     public List<Model> getAllModels() {
-        List<Model> savedModels = modelDAO.findAll();
-        return savedModels;
+        return modelDAO.findAll();
     }
 
     @Override
@@ -104,5 +107,24 @@ public class ModelTrimServiceImpl implements ModelTrimService {
             System.out.println("***** Unable to delete trim type. Check DB connection. *****" + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<Model> getModelsByManufacturerId(int manufacturerId) throws ManufacturerNotFoundException {
+        Optional<Manufacturer> dbManufacturer = manufacturerDAO.findById(manufacturerId);
+        if (!dbManufacturer.isPresent()) {
+            throw new ManufacturerNotFoundException("No manufacturer found for id " + manufacturerId);
+        }
+        return modelDAO.findByManufacturer(dbManufacturer.get());
+    }
+
+    @Override
+    public List<Model> getModelsByManufacturerName(String name) throws ManufacturerNotFoundException {
+        Manufacturer dbManufacturer = manufacturerDAO.findByManufacturerName(name);
+        if (dbManufacturer == null) {
+            throw new ManufacturerNotFoundException("No manufacturer found for name " + name);
+        }
+        int manufacturerId = dbManufacturer.getId();
+        return modelDAO.fetchModelsBasedOnManufacturerId(manufacturerId);
     }
 }
